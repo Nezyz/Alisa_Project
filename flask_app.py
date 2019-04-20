@@ -14,6 +14,16 @@ current_status = "start"
 current_dialog = "start"
 dialog_sport = None
 flag = False
+flag_end_football = False
+mood_alisa = 10
+score_ronaldo = 0
+question_1 = False
+question_2 = False
+question_3 = False
+question_4 = False
+question_5 = False
+not_test_ron = 1
+
 
 @app.route('/post', methods=['POST'])
 def main():
@@ -35,7 +45,8 @@ def main():
 
 
 def main_dialog(res, req):
-    global current_status, current_dialog, Session_data, dialog_sport, flag
+    global current_status, current_dialog, Session_data, dialog_sport, flag, flag_end_football, mood_alisa, \
+        score_ronaldo, question_1, question_2, question_3, question_4, question_5, not_test_ron
 
     user_id = req['session']['user_id']
     if current_dialog == "start":
@@ -90,7 +101,7 @@ def main_dialog(res, req):
                 Session_data[user_id] = {
                     'suggests': [
                         "Месси.",
-                        "Роналдо.",
+                        "Роналду.",
                         "Неймар.",
                     ],
                     'username': "Пользователь"
@@ -122,6 +133,25 @@ def main_dialog(res, req):
                                                                     'да, давай.']:
                     res['response']['text'] = 'Тогда напиши:"ЛеоМесси"'
                     return
+                else:
+                    current_status = "start"
+                    res['response']['text'] = 'Тогда давай переключим тему.'
+                    # mood_alisa -= 1
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Просто поболтать.",
+                            "Вопросы по городам.",
+                            "Покажи города.",
+                            "Не знаю, выбери сама.",
+                        ],
+                        'username': "Пользователь"
+                    }
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                      'Чем занимаешься?']
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+
             if dialog_sport == 'football_messi':
                 if req['request']['original_utterance'].lower() in ['леомесси']:
                     gallery_dialog(res, req)
@@ -129,6 +159,8 @@ def main_dialog(res, req):
                     return
                 if dialog_sport == 'football_messi' and flag == True:
                     res['response']['text'] = 'Понравилось?'
+                    flag = False
+                    flag_end_football = True
                     Session_data[user_id] = {
                         'suggests': [
                             "Да.",
@@ -140,6 +172,369 @@ def main_dialog(res, req):
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
+                if dialog_sport == 'football_messi' and flag_end_football == True:
+                    if req['request']['original_utterance'].lower() in ['да.', 'да', 'ага', 'угу', 'очень', 'еще бы']:
+                        res['response']['text'] = 'Я старалась:) Давай сменим тему.'
+                        # mood_alisa += 1
+                        current_status = "start_question"
+                        Session_data[user_id] = {
+                            'suggests': [
+                                "Просто поболтать.",
+                                "Вопросы по городам.",
+                                "Покажи города.",
+                                "Не знаю, выбери сама.",
+                            ],
+                            'username': "Пользователь"
+                        }
+                        Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                          'Чем занимаешься?']
+
+                        res['response']['buttons'] = get_suggests(user_id)
+                        return
+                if dialog_sport == 'football_messi' and flag_end_football == True:
+                    if req['request']['original_utterance'].lower() in ['нет.', 'нет', 'не-а', 'ноу', 'не очень']:
+                        res['response']['text'] = 'Всем не угодишь, а я ведь старалась:( Давай сменим тему.'
+                        # mood_alisa -= 1
+                        current_status = "start_question"
+                        Session_data[user_id] = {
+                            'suggests': [
+                                "Просто поболтать.",
+                                "Вопросы по городам.",
+                                "Покажи города.",
+                                "Не знаю, выбери сама.",
+                            ],
+                            'username': "Пользователь"
+                        }
+                        Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                          'Чем занимаешься?']
+
+                        res['response']['buttons'] = get_suggests(user_id)
+                        return
+            if current_status == "talk_sport":
+                if req['request']['original_utterance'].lower() in ['роналду', 'роналду.', 'криш.', 'криро',
+                                                                    'криштиану',
+                                                                    'криштиану роналду.']:
+                    dialog_sport = 'football_ronaldo'
+                    res['response'][
+                        'text'] = 'На мой взгляд, Лео лучше, но о нём я тоже смогу поддержать разговор. Хочешь' \
+                                  ' узнать о том, как хорошо ты о нем знаешь?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Да, давай.",
+                            "Нет, не хочу.",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if current_status == "talk_sport" and dialog_sport == 'football_ronaldo':
+                    if req['request']['original_utterance'].lower() in ['да, давай.', 'да',
+                                                                        'ага.',
+                                                                        'ага',
+                                                                        'угу',
+                                                                        'угу.']:
+                        res['response'][
+                            'text'] = 'Хорошо. В тесте будет 5 вопрос, за каждый правильный дается один балл,' \
+                                      ' за каждый неправильный снимается балл. Первый вопрос: В каком' \
+                                      ' году Роналдо стал выступать за Манчестер Юнайтед?'
+                        question_1 = True
+                        not_test_ron = 0
+                        dialog_sport = 'football_ronaldo_test'
+                        Session_data[user_id] = {
+                            'suggests': [
+                                "2003",
+                                "2009",
+                                "2018",
+                                "он там не выступал",
+                            ],
+                            'username': "Пользователь"
+
+                        }
+
+                        res['response']['buttons'] = get_suggests(user_id)
+                        return
+                    if req['request']['original_utterance'].lower() not in ['да, давай.', 'да',
+                                                                            'ага.',
+                                                                            'ага',
+                                                                            'угу',
+                                                                            'угу.']:
+                        res['response'][
+                            'text'] = 'Большего' \
+                                      ' о нём я не знаю, поэтому давай переключать тему.'
+                        current_status = "start_question"
+                        Session_data[user_id] = {
+                            'suggests': [
+                                "Просто поболтать.",
+                                "Вопросы по городам.",
+                                "Покажи города.",
+                                "Не знаю, выбери сама.",
+                            ],
+                            'username': "Пользователь"
+                        }
+                        Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                          'Чем занимаешься?']
+
+                        res['response']['buttons'] = get_suggests(user_id)
+                        return
+
+                if question_1 and dialog_sport == 'football_ronaldo_test' and req['request'][
+                    'original_utterance'].lower() in [
+                    '2003', 'две тысячи третий', 'две тысячи третьем', 'две тысячи третьем году',
+                ]:
+                    score_ronaldo += 1
+                    res['response'][
+                        'text'] = 'Это правильный ответ. Переходим ко 2 вопросу. Сколько лет он выступал' \
+                                  ' за этот клуб?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "6",
+                            "8",
+                            "9",
+                            "он и сейчас там выступает",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_1 = False
+                    question_2 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_1 and dialog_sport == 'football_ronaldo_test' and req['request'][
+                    'original_utterance'].lower() not in [
+                    '2003', 'две тысячи третий', 'две тысячи третьем', 'две тысячи третьем году',
+                ]:
+                    if score_ronaldo > 0:
+                        score_ronaldo -= 1
+                    else:
+                        score_ronaldo = 0
+                    res['response'][
+                        'text'] = 'Это неправильный ответ. Переходим ко 2 вопросу. Сколько лет он выступал' \
+                                  ' за этот клуб?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "6",
+                            "8",
+                            "9",
+                            "он и сейчас там выступает",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+
+                    question_1 = False
+                    question_2 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_2 and req['request'][
+                    'original_utterance'].lower() in [
+                    '6', 'шесть', 'шесть лет', 'лет шесть',
+                ]:
+                    score_ronaldo += 1
+                    res['response'][
+                        'text'] = 'Это правильный ответ. Переходим ко 3 вопросу.Сколько золотых мячей он выиграл?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "4",
+                            "5",
+                            "6",
+                            "Ни одного",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_2 = False
+                    question_3 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_2 and req['request'][
+                    'original_utterance'].lower() not in [
+                    '6', 'шесть', 'шесть лет', 'лет шесть',
+                ]:
+                    if score_ronaldo > 0:
+                        score_ronaldo -= 1
+                    else:
+                        score_ronaldo = 0
+                    res['response'][
+                        'text'] = 'Это неправильный ответ. Переходим ко 3 вопросу.Сколько золотых мячей он выиграл?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "4",
+                            "5",
+                            "6",
+                            "Ни одного",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_2 = False
+                    question_3 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_3 and req['request'][
+                    'original_utterance'].lower() in [
+                    '5', 'пять', 'пять лет', 'лет пять',
+                ]:
+                    score_ronaldo += 1
+                    res['response'][
+                        'text'] = 'Это правильный ответ. Переходим ко 4 вопросу. В каком году он выиграл первый ЗМ?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "2006",
+                            "2016",
+                            "2009",
+                            "2008",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_3 = False
+                    question_4 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_3 and req['request'][
+                    'original_utterance'].lower() not in [
+                    '5', 'пять', 'пять лет', 'лет пять',
+                ]:
+                    if score_ronaldo > 0:
+                        score_ronaldo -= 1
+                    else:
+                        score_ronaldo = 0
+                    res['response'][
+                        'text'] = 'Это неправильный ответ. Переходим ко 4 вопросу. В каком году он выиграл первый ЗМ?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "2006",
+                            "2016",
+                            "2009",
+                            "2008",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_3 = False
+                    question_4 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_4 and req['request'][
+                    'original_utterance'].lower() not in [
+                    '2008', 'две тысячи восьмой', 'в две тысячи восьмом', 'две тысячи восьмой год',
+                ]:
+                    if score_ronaldo > 0:
+                        score_ronaldo -= 1
+                    else:
+                        score_ronaldo = 0
+                    res['response'][
+                        'text'] = 'Это неправильный ответ. Переходим ко 5 вопросу. Где этот игрок играет сейчас?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Реал Мадрид",
+                            "Ювентус",
+                            "Барселона",
+                            "Манчестер Юнайтед",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_4 = False
+                    question_5 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_4 and req['request'][
+                    'original_utterance'].lower() in [
+                    '2008', 'две тысячи восьмой', 'в две тысячи восьмом', 'две тысячи восьмой год',
+                ]:
+                    score_ronaldo += 1
+                    res['response'][
+                        'text'] = 'Это правильный ответ. Переходим ко 5 вопросу. Где этот игрок играет сейчас?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Реал Мадрид",
+                            "Ювентус",
+                            "Барселона",
+                            "Манчестер Юнайтед",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_4 = False
+                    question_5 = True
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_5 and req['request'][
+                    'original_utterance'].lower() in [
+                    'Ювентус', 'Юве', 'В Ювентусе', 'В Юве',
+                ]:
+                    score_ronaldo += 1
+                    res['response'][
+                        'text'] = 'Это правильный ответ. Вот твои баллы: ' + str(
+                        score_ronaldo) + 'Ты доволен результатами?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Да, очень",
+                            "Нет",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_5 = False
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if question_5 and req['request'][
+                    'original_utterance'].lower() not in [
+                    'Ювентус', 'Юве', 'В Ювентусе', 'В Юве',
+                ]:
+                    if score_ronaldo > 0:
+                        score_ronaldo -= 1
+                    else:
+                        score_ronaldo = 0
+                    res['response'][
+                        'text'] = 'Это неправильный ответ. Вот твои баллы: ' + str(
+                        score_ronaldo) + 'Ты доволен результатами?'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Да, очень",
+                            "Нет",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+                    question_5 = False
+                    not_test_ron = 5
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if not_test_ron == 5:
+                    if req['request']['original_utterance'].lower() in [
+                        'да, очень', 'да', 'очень', 'ага',
+                    ]:
+                        res['response'][
+                            'text'] = 'Отлично, поздравляю, ты молодец! Большего' \
+                                      ' о нём я не знаю, поэтому давай переключать тему.'
+                        current_status = "start_question"
+                        Session_data[user_id] = {
+                            'suggests': [
+                                "Просто поболтать.",
+                                "Вопросы по городам.",
+                                "Покажи города.",
+                                "Не знаю, выбери сама.",
+                            ],
+                            'username': "Пользователь"
+                        }
+                        Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                          'Чем занимаешься?']
+
+                        res['response']['buttons'] = get_suggests(user_id)
+                        return
 
         if req['request']['original_utterance'].lower() in ['вопросы по городам.']:
             current_dialog = "city"
