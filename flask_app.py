@@ -23,6 +23,8 @@ question_3 = False
 question_4 = False
 question_5 = False
 not_test_ron = 1
+knowledge_about_ney = ["очень знаменитый", "хороший футболист", "играет в PSG",
+                       "играет в ПСЖ"]
 
 
 @app.route('/post', methods=['POST'])
@@ -46,7 +48,7 @@ def main():
 
 def main_dialog(res, req):
     global current_status, current_dialog, Session_data, dialog_sport, flag, flag_end_football, mood_alisa, \
-        score_ronaldo, question_1, question_2, question_3, question_4, question_5, not_test_ron
+        score_ronaldo, question_1, question_2, question_3, question_4, question_5, not_test_ron, knowledge_about_ney
 
     user_id = req['session']['user_id']
     if current_dialog == "start":
@@ -210,7 +212,7 @@ def main_dialog(res, req):
 
                         res['response']['buttons'] = get_suggests(user_id)
                         return
-            if current_status == "talk_sport":
+            if dialog_sport == 'football':
                 if req['request']['original_utterance'].lower() in ['роналду', 'роналду.', 'криш.', 'криро',
                                                                     'криштиану',
                                                                     'криштиану роналду.']:
@@ -535,6 +537,54 @@ def main_dialog(res, req):
 
                         res['response']['buttons'] = get_suggests(user_id)
                         return
+            if dialog_sport == 'football':
+                if req['request']['original_utterance'].lower() in ['неймар', 'неймар.', 'ней.']:
+                    dialog_sport = 'football_neymar'
+                    res['response'][
+                        'text'] = 'Его я знаю плохо. Расскажи ' \
+                                  'мне что-нибудь о нем в нескольких сообщениях. Надеюсь ты сможешь' \
+                                  ' сообщить что-то новое :)'
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Ну давай попробую.",
+                            "Я не смогу что-то вспомнить.",
+                        ],
+                        'username': "Пользователь"
+
+                    }
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+            if dialog_sport == 'football_neymar':
+                if req['request']['original_utterance'].lower() in ['ну давай попробую.', 'давай.',
+                                                                    'сейчас попробую']:
+                    res['response'][
+                        'text'] = 'Я тебя внимательно слушаю'
+                    return
+                if knowledge_about_ney in req['request']['original_utterance'].lower():
+                    res['response'][
+                        'text'] = 'Ну обо всем об этом я знала. Вот, что я узнала от тебя: "' + str(
+                        knowledge_about_ney) + 'Спасибо, что рассказал мне о нем, было интересно тебя послушать.'
+                    current_status = "start_question"
+                    Session_data[user_id] = {
+                        'suggests': [
+                            "Просто поболтать.",
+                            "Вопросы по городам.",
+                            "Покажи города.",
+                            "Не знаю, выбери сама.",
+                        ],
+                        'username': "Пользователь"
+                    }
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                                      'Чем занимаешься?']
+
+                    res['response']['buttons'] = get_suggests(user_id)
+                    return
+                if knowledge_about_ney not in req['request']['original_utterance'].lower():
+                    res['response'][
+                        'text'] = 'Ого первый раз об этом услышала, продолжай, мне очень интересно.'
+                    knowledge_about_ney.add(req['request']['original_utterance'].lower())
+                    return
 
         if req['request']['original_utterance'].lower() in ['вопросы по городам.']:
             current_dialog = "city"
