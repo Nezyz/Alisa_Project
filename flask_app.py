@@ -637,6 +637,19 @@ def main_dialog(res, req):
                     'username': "Пользователь"
 
                 }
+                session = Session_data[user_id]
+                suggests = [
+
+                    {'title': suggest, 'hide': True}
+
+                    for suggest in session['suggests']
+
+                ]
+                suggests.append({
+                    "title": "Давай.",
+                    "url": "https://yandex.ru/search/?text=баскетбольная лига",
+                    "hide": True
+                })
 
                 res['response']['buttons'] = get_suggests(user_id)
                 return
@@ -644,29 +657,6 @@ def main_dialog(res, req):
                 if req['request']['original_utterance'].lower() in ['давай.', 'давай', 'да', 'да.',
                                                                     'покажи.', 'покажи']:
                     res['response']['text'] = 'Там вот такие результаты. Было интересно?'
-
-                    session = Session_data[user_id]
-                    suggests = [
-
-                        {'title': suggest, 'hide': True}
-
-                        for suggest in session['suggests']
-
-                    ]
-                    suggests.append({
-                        "title": "Давай.",
-                        "url": "https://yandex.ru/search/?text=баскетбольная лига",
-                        "hide": True
-                    })
-                    Session_data[user_id] = {
-                        'suggests': [
-                            "Да.",
-                            "Нет.",
-                        ],
-                        'username': "Пользователь"
-
-                    }
-
                 return
     if current_status == "start_question" and req['request']['original_utterance'].lower() in [
         'не знаю, выбери сама.', 'не знаю.', 'выбери сама',
