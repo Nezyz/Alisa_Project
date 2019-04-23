@@ -629,6 +629,7 @@ def main_dialog(res, req):
                 res['response']['text'] = 'Я в нём очень мало разбираюсь.' \
                                           ' Все, что я пока могу, это вывести тебе турнирую таблицу на данный момент.'
                 dialog_sport = 'basketball'
+
                 Session_data[user_id] = {
                     'suggests': [
                         "Давай.",
@@ -637,15 +638,7 @@ def main_dialog(res, req):
                     'username': "Пользователь"
 
                 }
-                session = Session_data[user_id]
-                suggests = [
-
-                    {'title': suggest, 'hide': True}
-
-                    for suggest in session['suggests']
-
-                ]
-                suggests.append({
+                Session_data[user_id]['suggests'].append({
                     "title": "Давай.",
                     "url": "https://yandex.ru/search/?text=баскетбольная лига",
                     "hide": True
