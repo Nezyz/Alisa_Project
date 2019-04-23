@@ -25,11 +25,9 @@ question_5 = False
 flag_leo = False
 flag_info_ney = False
 not_test_ron = 1
-current_status_1 = None
 knowledge_about_ney = ["очень знаменитый", "хороший футболист", "играет в PSG",
                        "играет в ПСЖ"]
 topic_alisa = ["talk_sport", "translate", "gallery", "city"]
-
 
 @app.route('/post', methods=['POST'])
 def main():
@@ -53,7 +51,7 @@ def main():
 def main_dialog(res, req):
     global current_status, current_dialog, Session_data, dialog_sport, flag, flag_end_football, mood_alisa, \
         score_ronaldo, question_1, question_2, question_3, question_4, question_5, not_test_ron, knowledge_about_ney, \
-        flag_leo, flag_info_ney, topic_alisa, current_status_1
+        flag_leo, flag_info_ney, topic_alisa
 
     user_id = req['session']['user_id']
     if current_dialog == "start":
@@ -78,7 +76,10 @@ def main_dialog(res, req):
                 ],
                 'username': "Пользователь"
             }
-            Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?', 'Чем занимаешься?']
+            Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                              'Чем занимаешься?', "Какая ваша любимая книга?", "Кто ваш любимый автор?",
+                                              "Вы бы выбрали ум или внешность?",
+                                              "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
             res['response']['buttons'] = get_suggests(user_id)
             return
@@ -159,7 +160,10 @@ def main_dialog(res, req):
                         'username': "Пользователь"
                     }
                     Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                      'Чем занимаешься?']
+                                                      'Чем занимаешься?', "Какая ваша любимая книга?",
+                                                      "Кто ваш любимый автор?",
+                                                      "Вы бы выбрали ум или внешность?",
+                                                      "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
@@ -199,7 +203,10 @@ def main_dialog(res, req):
                             'username': "Пользователь"
                         }
                         Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                          'Чем занимаешься?']
+                                                          'Чем занимаешься?', "Какая ваша любимая книга?",
+                                                          "Кто ваш любимый автор?",
+                                                          "Вы бы выбрали ум или внешность?",
+                                                          "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                         res['response']['buttons'] = get_suggests(user_id)
                         return
@@ -217,8 +224,12 @@ def main_dialog(res, req):
                                 ],
                                 'username': "Пользователь"
                             }
-                            Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                              'Чем занимаешься?']
+                            Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                                              'Чем занимаешься?',
+                                                              "Какая ваша любимая книга?",
+                                                              "Кто ваш любимый автор?",
+                                                              "Вы бы выбрали ум или внешность?",
+                                                              "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                             res['response']['buttons'] = get_suggests(user_id)
                             return
@@ -285,8 +296,12 @@ def main_dialog(res, req):
                         ],
                         'username': "Пользователь"
                     }
-                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                      'Чем занимаешься?']
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                                      'Чем занимаешься?',
+                                                      "Какая ваша любимая книга?",
+                                                      "Кто ваш любимый автор?",
+                                                      "Вы бы выбрали ум или внешность?",
+                                                      "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
@@ -542,8 +557,11 @@ def main_dialog(res, req):
                         ],
                         'username': "Пользователь"
                     }
-                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                      'Чем занимаешься?']
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                                      'Чем занимаешься?', "Какая ваша любимая книга?",
+                                                      "Кто ваш любимый автор?",
+                                                      "Вы бы выбрали ум или внешность?",
+                                                      "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
@@ -590,8 +608,12 @@ def main_dialog(res, req):
                         ],
                         'username': "Пользователь"
                     }
-                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                      'Чем занимаешься?']
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                                      'Чем занимаешься?',
+                                                      "Какая ваша любимая книга?",
+                                                      "Кто ваш любимый автор?",
+                                                      "Вы бы выбрали ум или внешность?",
+                                                      "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
@@ -612,8 +634,11 @@ def main_dialog(res, req):
                         ],
                         'username': "Пользователь"
                     }
-                    Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                      'Чем занимаешься?']
+                    Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                                      'Чем занимаешься?', "Какая ваша любимая книга?",
+                                                      "Кто ваш любимый автор?",
+                                                      "Вы бы выбрали ум или внешность?",
+                                                      "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
                     res['response']['buttons'] = get_suggests(user_id)
                     return
@@ -638,11 +663,11 @@ def main_dialog(res, req):
                     'username': "Пользователь"
 
                 }
-                Session_data[user_id]['suggests'].append({
+                Session_data[user_id]['suggests'][1] = {
                     "title": "Давай.",
-                    "url": "https://yandex.ru/search/?text=баскетбольная лига",
+                    "url": "https://yandex.ru/search/?text=баскетбол",
                     "hide": True
-                })
+                }
 
                 res['response']['buttons'] = get_suggests(user_id)
                 return
@@ -656,8 +681,8 @@ def main_dialog(res, req):
         'а что сама предложишь.',
         'давай о спорте.', 'давай о спорте', 'спортом',
         'спортом.']:
-        current_status_1 = "random_topic"
-    if current_status_1 == "random_topic":
+        current_status = "random_topic"
+    if current_status == "random_topic":
         current = random.choice(topic_alisa)
         if current == "translate":
             res['response'][
@@ -691,10 +716,59 @@ def main_dialog(res, req):
             res['response']['buttons'] = get_suggests(user_id)
             return
 
-    if req['request']['original_utterance'].lower() in ['вопросы по городам.']:
+    if req['request']['original_utterance'].lower() in ['просто поболтать.']:
         current_dialog = "talk"
-        # if "?" in req['request']['original_utterance'].lower():
 
+    if current_dialog == "talk":
+        res['response'][
+            'text'] = 'Окей. Что делаешь'
+        st_q = ['Интересно', 'Понятно', 'Ясно', 'Хорошо', 'Ммм', 'Неплохо', 'Хорошо']
+        c_q = random.choice(Session_data[user_id]['quest'])
+        Session_data[user_id]['quest'].remove(c_q)
+        res['response']['text'] = random.choice(st_q) + '. ' + c_q
+
+        return
+    if len(Session_data[user_id]['quest']) < 1:
+        res['response']['text'] = 'Не знаю, о чем еще спросить'
+        current_status = "start_question"
+        Session_data[user_id] = {
+            'suggests': [
+                "Давай о спорте.",
+                "Вопросы по городам.",
+                "Покажи города.",
+                "Не знаю, выбери сама.",
+            ],
+            'username': "Пользователь"
+        }
+        Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                          'Чем занимаешься?', "Какая ваша любимая книга?",
+                                          "Кто ваш любимый автор?",
+                                          "Вы бы выбрали ум или внешность?",
+                                          "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+        res['response']['buttons'] = get_suggests(user_id)
+        return
+    if current_dialog == "talk" and req['request']['original_utterance'].lower() in ['хватит']:
+        res['response'][
+            'text'] = 'Было приятно пообщаться) О чём ещё поговорим?'
+        Session_data[user_id] = {
+            'suggests': [
+                "Давай о спорте.",
+                "Вопросы по городам.",
+                "Покажи города.",
+                "Не знаю, выбери сама.",
+            ],
+            'username': "Пользователь"
+        }
+        Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                          'Чем занимаешься?',
+                                          "Какая ваша любимая книга?",
+                                          "Кто ваш любимый автор?",
+                                          "Вы бы выбрали ум или внешность?",
+                                          "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+        res['response']['buttons'] = get_suggests(user_id)
+        return
     if req['request']['original_utterance'].lower() in ['вопросы по городам.']:
         current_dialog = "city"
         res['response'][
@@ -750,63 +824,6 @@ def main_dialog(res, req):
         current_dialog = 'gallery'
 
         return
-    """if current_dialog == "talk":
-        if current_status == 'talk_name':
-            Session_data[user_id]['username'] = get_first_name(req).title()
-            res['response']['text'] = 'Приятно познакомиться, ' + Session_data[user_id]['username']
-            current_status = 'talk_alisa'
-            return
-        if '?' in req['request']['original_utterance'].lower():
-            current_status = 'talk_user'
-        else:
-            current_status = 'talk_alisa'
-        if current_status == 'talk_alisa':
-            if len(Session_data[user_id]['quest']) < 1:
-                res['response']['text'] = 'Не знаю, о чем еще спросить'
-                Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
-                                                  'Чем занимаешься?']
-                current_dialog = "start"
-                current_status = "start_question"
-                Session_data[user_id]['suggests'] = [
-                    "Переведи текст.",
-                    "Найди в интернете",
-                ]
-                res['response']['buttons'] = get_suggests(user_id)
-                return
-            st_q = ['Интересно', 'Понятно', 'Ясно']
-            c_q = random.choice(Session_data[user_id]['quest'])
-            Session_data[user_id]['quest'].remove(c_q)
-            if c_q == 'Как тебя зовут?':
-                current_status = 'talk_name'
-            res['response']['text'] = random.choice(st_q) + '. ' + c_q
-
-            return
-
-        elif current_status == 'talk_user':
-
-            end_q = ['Что-нибудь еще спросишь?', 'Еще поговорим?', 'Мммм']
-            if 'погода' in req['request']['original_utterance'].lower():
-                res['response']['text'] = 'Нормальная' + '. ' + random.choice(end_q)
-                return
-            if 'имя' in req['request']['original_utterance'].lower():
-                res['response']['text'] = 'Алиса' + '. ' + random.choice(end_q)
-                return
-            if 'лет' in req['request']['original_utterance'].lower():
-                res['response']['text'] = 'Не знаю. Мало. ' + '. ' + random.choice(end_q)
-                return
-            res['response']['text'] = 'Не понятно о чем ты'
-            return
-        else:
-            res['response']['text'] = 'Ты неразговорчивый. Что-нибудь хочешь?'
-            current_dialog = "start"
-            current_status = "start_question"
-            Session_data[user_id] = [
-                "Просто поболтать.",
-                "Переведи текст.",
-                "Найди в интернете",
-            ]
-            res['response']['buttons'] = get_suggests(user_id)
-            return"""
     if current_dialog == "translate":
         translite_dialog(res, req)
         return
@@ -905,31 +922,28 @@ def gallery_dialog(res, req):
 
 def city_dialog(res, req):
     user_id = req['session']['user_id']
-
     if req['session']['new']:
-        res['response']['text'] = 'Отлично! Я могу сказать в какой стране город или сказать расстояние между городами!'
-
+        res['response']['text'] = 'Привет! Я могу сказать в какой стране город или сказать расстояние между городами!'
         return
-
     cities = get_cities(req)
-
     if len(cities) == 0:
-
         res['response']['text'] = 'Ты не написал название не одного города!'
-
     elif len(cities) == 1:
-
         res['response']['text'] = 'Этот город в стране - ' + get_geo_info(cities[0], 'country')
-
     elif len(cities) == 2:
-
         distance = get_distance(get_geo_info(cities[0], 'coordinates'), get_geo_info(cities[1], 'coordinates'))
         res['response']['text'] = 'Расстояние между этими городами: ' + str(round(distance)) + ' км.'
-
     else:
-
         res['response']['text'] = 'Слишком много городов!'
-    return
+
+
+def get_cities(req):
+    cities = []
+    for entity in req['request']['nlu']['entities']:
+        if entity['type'] == 'YANDEX.GEO':
+            if 'city' in entity['value'].keys():
+                cities.append(entity['value']['city'])
+    return cities
 
 
 def get_cities(req):
