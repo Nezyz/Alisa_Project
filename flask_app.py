@@ -5,6 +5,7 @@ import random
 
 app = Flask(__name__)
 import translate
+from geo import get_geo_info, get_distance
 
 logging.basicConfig(level=logging.INFO, filename='app.log',
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
@@ -28,6 +29,7 @@ not_test_ron = 1
 knowledge_about_ney = ["очень знаменитый", "хороший футболист", "играет в PSG",
                        "играет в ПСЖ"]
 topic_alisa = ["talk_sport", "translate", "gallery", "city"]
+
 
 @app.route('/post', methods=['POST'])
 def main():
@@ -148,6 +150,7 @@ def main_dialog(res, req):
                                                                                          'угу',
                                                                                          'да, давай.']:
                     current_status = "start"
+                    current_dialog = "start"
                     res['response']['text'] = 'Тогда давай переключим тему.'
                     # mood_alisa -= 1
                     Session_data[user_id] = {
@@ -193,6 +196,7 @@ def main_dialog(res, req):
                         res['response']['text'] = 'Я старалась:) Давай сменим тему.'
                         # mood_alisa += 1
                         current_status = "start_question"
+                        current_dialog = "start"
                         Session_data[user_id] = {
                             'suggests': [
                                 "Просто поболтать.",
@@ -215,6 +219,7 @@ def main_dialog(res, req):
                             res['response']['text'] = 'Всем не угодишь, а я ведь старалась:( Давай сменим тему.'
                             # mood_alisa -= 1
                             current_status = "start_question"
+                            current_dialog = "start"
                             Session_data[user_id] = {
                                 'suggests': [
                                     "Просто поболтать.",
@@ -548,6 +553,7 @@ def main_dialog(res, req):
                         'text'] = 'Отлично, поздравляю, ты молодец! Большего' \
                                   ' о нём я не знаю, поэтому давай переключать тему.'
                     current_status = "start_question"
+                    current_dialog = "start"
                     Session_data[user_id] = {
                         'suggests': [
                             "Просто поболтать.",
@@ -599,6 +605,7 @@ def main_dialog(res, req):
                     res['response'][
                         'text'] = 'Очень жаль, я надеялась на тебя. Тогда давай поговорим о чём-нибудь другом.'
                     current_status = "start_question"
+                    current_dialog = "start"
                     Session_data[user_id] = {
                         'suggests': [
                             "Просто поболтать.",
@@ -625,6 +632,7 @@ def main_dialog(res, req):
                                                 ' было интересно тебя послушать. Давай ещё о' \
                                                 ' чём-нибудь поговорим.'
                     current_status = "start_question"
+                    current_dialog = "start"
                     Session_data[user_id] = {
                         'suggests': [
                             "Просто поболтать.",
@@ -655,27 +663,42 @@ def main_dialog(res, req):
                                           ' Все, что я пока могу, это вывести тебе турнирую таблицу на данный момент.'
                 dialog_sport = 'basketball'
 
-                Session_data[user_id] = {
-                    'suggests': [
-                        "Давай.",
-                        "Спасибо, не надо.",
-                    ],
-                    'username': "Пользователь"
-
-                }
-                Session_data[user_id]['suggests'][1] = {
+                res['response']['buttons'] = [{
                     "title": "Давай.",
                     "url": "https://yandex.ru/search/?text=баскетбол",
                     "hide": True
-                }
-
-                res['response']['buttons'] = get_suggests(user_id)
+                }, {
+                    "title": "Спасибо, не надо.",
+                    "hide": True
+                }]
                 return
             if current_status == "talk_sport" and dialog_sport == 'basketball':
                 if req['request']['original_utterance'].lower() in ['давай.', 'давай', 'да', 'да.',
                                                                     'покажи.', 'покажи']:
                     res['response']['text'] = 'Там вот такие результаты. Было интересно?'
                 return
+        if current_status == "talk_sport":
+            if req['request']['original_utterance'].lower() in ['хоккей', 'хоккее.', 'хоккей', 'хоккей.']:
+                res['response']['text'] = 'Извини, об этом спорте я ничего не знаю.'
+            current_status = "start_question"
+            current_dialog = "start"
+            Session_data[user_id] = {
+                'suggests': [
+                    "Просто поболтать.",
+                    "Вопросы по городам.",
+                    "Покажи города.",
+                    "Не знаю, выбери сама.",
+                ],
+                'username': "Пользователь"
+            }
+            Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                              'Чем занимаешься?', "Какая ваша любимая книга?",
+                                              "Кто ваш любимый автор?",
+                                              "Вы бы выбрали ум или внешность?",
+                                              "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+            res['response']['buttons'] = get_suggests(user_id)
+            return
     if current_status == "start_question" and req['request']['original_utterance'].lower() in [
         'не знаю, выбери сама.', 'не знаю.', 'выбери сама',
         'а что сама предложишь.',
@@ -688,16 +711,19 @@ def main_dialog(res, req):
             res['response'][
                 'text'] = 'Давай я тогда тебе что-нибудь переведу, переводить буду с ' + lang
             current_dialog = current
+            current_status = 'start_translite'
             return
         if current == "gallery":
             res['response'][
                 'text'] = 'Давай я покажу фотографии городов, о которых я слышала,' \
                           ' говори название, а я скажу знаю я его или нет.'
             current_dialog = current
+            current_status = current
             return
         if current == "city":
             res['response'][
                 'text'] = 'Давай расскажу про города тебе.'
+            current_dialog = current
             current_status = current
             return
         if current == "talk_sport":
@@ -720,6 +746,27 @@ def main_dialog(res, req):
         current_dialog = "talk"
 
     if current_dialog == "talk":
+        if len(Session_data[user_id]['quest']) < 1:
+            res['response']['text'] = 'Не знаю, о чем еще спросить'
+            current_status = "start_question"
+            current_dialog = "start"
+            Session_data[user_id] = {
+                'suggests': [
+                    "Давай о спорте.",
+                    "Вопросы по городам.",
+                    "Покажи города.",
+                    "Не знаю, выбери сама.",
+                ],
+                'username': "Пользователь"
+            }
+            Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                              'Чем занимаешься?', "Какая ваша любимая книга?",
+                                              "Кто ваш любимый автор?",
+                                              "Вы бы выбрали ум или внешность?",
+                                              "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+            res['response']['buttons'] = get_suggests(user_id)
+            return
         res['response'][
             'text'] = 'Окей. Что делаешь'
         st_q = ['Интересно', 'Понятно', 'Ясно', 'Хорошо', 'Ммм', 'Неплохо', 'Хорошо']
@@ -728,26 +775,7 @@ def main_dialog(res, req):
         res['response']['text'] = random.choice(st_q) + '. ' + c_q
 
         return
-    if len(Session_data[user_id]['quest']) < 1:
-        res['response']['text'] = 'Не знаю, о чем еще спросить'
-        current_status = "start_question"
-        Session_data[user_id] = {
-            'suggests': [
-                "Давай о спорте.",
-                "Вопросы по городам.",
-                "Покажи города.",
-                "Не знаю, выбери сама.",
-            ],
-            'username': "Пользователь"
-        }
-        Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
-                                          'Чем занимаешься?', "Какая ваша любимая книга?",
-                                          "Кто ваш любимый автор?",
-                                          "Вы бы выбрали ум или внешность?",
-                                          "По шкале от 1 - 10 насколько забавны ваши шутки?"]
 
-        res['response']['buttons'] = get_suggests(user_id)
-        return
     if current_dialog == "talk" and req['request']['original_utterance'].lower() in ['хватит']:
         res['response'][
             'text'] = 'Было приятно пообщаться) О чём ещё поговорим?'
@@ -777,6 +805,27 @@ def main_dialog(res, req):
         return
     if current_dialog == "city":
         cities = get_cities(req)
+        if req['request']['original_utterance'].lower() in ['хватит']:
+            res['response'][
+                'text'] = 'Надеюсь тебе понравилось. Выбирай новую тему.'
+            current_dialog = "start"
+            current_status = "start_question"
+            Session_data[user_id] = {
+                'suggests': [
+                    "Давай о спорте.",
+                    "Просто поболтать.",
+                    "Покажи города.",
+                    "Не знаю, выбери сама.",
+                ],
+                'username': "Пользователь"
+            }
+            Session_data[user_id]['quest'] = ['Как погода?', 'Как тебя зовут?', 'Тебе много лет?',
+                                              'Чем занимаешься?', "Какая ваша любимая книга?", "Кто ваш любимый автор?",
+                                              "Вы бы выбрали ум или внешность?",
+                                              "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+            res['response']['buttons'] = get_suggests(user_id)
+            return
 
         if len(cities) == 0:
 
@@ -805,8 +854,8 @@ def main_dialog(res, req):
         ]
         res['response']['text'] = Session_data[user_id]['username'] + '. Выбери язык'
         res['response']['buttons'] = get_suggests(user_id)
-        current_status = 'start'
         current_dialog = 'translate'
+        current_status = 'start_translite'
 
         return
 
@@ -866,9 +915,25 @@ def translite_dialog(res, req):
         return
 
     if 'хватит' in req['request']['original_utterance'].lower():
-        current_dialog = 'start'
-        res['response']['text'] = "Была рада помочь"
-        current_status = 'end_translite'
+        res['response']['text'] = "Была рада помочь. О чём ещё поболтаем?"
+        current_status = "start_question"
+        Session_data[user_id] = {
+            'suggests': [
+                "Давай о спорте.",
+                "Вопросы по городам.",
+                "Покажи города.",
+                "Не знаю, выбери сама.",
+            ],
+            'username': "Пользователь"
+        }
+        Session_data[user_id]['quest'] = ['Как погода?', 'Тебе много лет?',
+                                          'Чем занимаешься?',
+                                          "Какая ваша любимая книга?",
+                                          "Кто ваш любимый автор?",
+                                          "Вы бы выбрали ум или внешность?",
+                                          "По шкале от 1 - 10 насколько забавны ваши шутки?"]
+
+        res['response']['buttons'] = get_suggests(user_id)
         return
     if current_status == 'start_translite':
         res['response']['text'] = "Перевод: " + translate.translate(req['request']['original_utterance'], lang)[0]
@@ -943,19 +1008,6 @@ def get_cities(req):
         if entity['type'] == 'YANDEX.GEO':
             if 'city' in entity['value'].keys():
                 cities.append(entity['value']['city'])
-    return cities
-
-
-def get_cities(req):
-    cities = []
-
-    for entity in req['request']['nlu']['entities']:
-
-        if entity['type'] == 'YANDEX.GEO':
-
-            if 'city' in entity['value'].keys():
-                cities.append(entity['value']['city'])
-
     return cities
 
 
